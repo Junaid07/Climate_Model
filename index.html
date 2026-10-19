@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>NUTECH Mini Climate Box</title>
+<style>
+:root{
+  --navy:#16324f;
+  --cyan:#20a3d5;
+  --bg:#f5f8fb;
+  --card:#ffffff;
+  --muted:#64748b;
+  --border:#d9e3ec;
+  --orange:#e28b30;
+  --green:#4b9b58;
+  --blue:#4c83bd;
+  --red:#b85d45;
+  --purple:#7d69ae;
+  --soft:#eef5f9;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--navy);
+  line-height:1.45;
+}
+header{
+  background:var(--cyan);
+  padding:18px 20px;
+  border-bottom:4px solid #168bb5;
+}
+header h1{margin:0;font-size:clamp(1.5rem,3vw,2.2rem)}
+header p{margin:5px 0 0;font-size:0.98rem}
+main{max-width:1180px;margin:0 auto;padding:20px}
+.grid{display:grid;grid-template-columns:0.9fr 1.1fr;gap:18px}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:18px;
+}
+h2{margin:0 0 6px;font-size:1.25rem}
+h3{margin:0 0 6px;font-size:1.02rem}
+.small{font-size:0.88rem;color:var(--muted)}
+.control{margin:18px 0}
+.control-row{display:flex;justify-content:space-between;gap:12px;font-weight:700}
+input[type="range"]{width:100%;margin-top:8px}
+.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+button{
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:10px 13px;
+  background:white;
+  color:var(--navy);
+  cursor:pointer;
+  font-weight:700;
+}
+button.primary{background:#dff3fb;border-color:#9ed6ea}
+button:hover{filter:brightness(.98)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.metric{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  background:#fff;
+}
+.metric .label{font-size:.78rem;color:var(--muted)}
+.metric .value{font-size:1.25rem;font-weight:800;margin-top:3px}
+.panel{
+  margin-top:14px;
+  background:var(--soft);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+}
+.status{
+  display:inline-block;
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:4px 9px;
+  font-size:.78rem;
+  font-weight:700;
+}
+.triplet{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.triplet div{background:white;border-radius:8px;padding:9px;border:1px solid var(--border);font-size:.9rem}
+.challenge-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+.challenge{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  background:#fff;
+}
+.results{
+  margin-top:12px;
+  border-collapse:collapse;
+  width:100%;
+  font-size:.9rem;
+}
+.results th,.results td{border:1px solid var(--border);padding:8px;text-align:left}
+.results th{background:#eef5f9}
+.notice{
+  background:#fff8e8;
+  border:1px solid #eed592;
+  border-radius:10px;
+  padding:11px;
+  margin-top:14px;
+}
+footer{max-width:1180px;margin:0 auto 28px;padding:0 20px;color:var(--muted);font-size:.85rem}
+svg{width:100%;height:auto;display:block}
+@media(max-width:850px){
+  .grid{grid-template-columns:1fr}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:560px){
+  main{padding:12px}
+  .metrics,.challenge-grid,.triplet{grid-template-columns:1fr}
+  .control-row{flex-direction:column;gap:2px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>NUTECH Mini Climate Box</h1>
+  <p>Advanced Computational Models for Climate Change · Student Experiment</p>
+</header>
+
+<main>
+  <div class="card" style="margin-bottom:18px">
+    <h2>How to use this model</h2>
+    <p style="margin:6px 0 0">
+      Follow the scientific routine: <b>Predict → Change one control → Observe → Explain</b>.
+      This is a simple global-mean energy-balance model, not a GCM.
+    </p>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>1. Change the climate controls</h2>
+      <p class="small">For a fair experiment, change only one control at a time.</p>
+
+      <div class="control">
+        <div class="control-row">
+          <span>CO₂ concentration</span><output id="co2Out">280 ppm</output>
+        </div>
+        <input id="co2" type="range" min="280" max="840" step="20" value="280">
+        <div class="small">More CO₂ → positive radiative forcing.</div>
+      </div>
+
+      <div class="control">
+        <div class="control-row">
+          <span>Surface albedo α</span><output id="albOut">0.300</output>
+        </div>
+        <input id="albedo" type="range" min="0.27" max="0.33" step="0.005" value="0.30">
+        <div class="small">Lower albedo → less sunlight reflected → more absorbed energy.</div>
+      </div>
+
+      <div class="control">
+        <div class="control-row">
+          <span>Feedback strength λ</span><output id="lamOut">1.2 W/m²/K</output>
+        </div>
+        <input id="lambda" type="range" min="0.8" max="1.8" step="0.1" value="1.2">
+        <div class="small">Smaller λ → more sensitive climate → greater final warming.</div>
+      </div>
+
+      <div class="control">
+        <div class="control-row">
+          <span>Heat capacity C</span><output id="cOut">10</output>
+        </div>
+        <input id="capacity" type="range" min="5" max="30" step="1" value="10">
+        <div class="small">Larger C → slower response to the same forcing.</div>
+      </div>
+
+      <div class="control">
+        <div class="control-row">
+          <span>Years after the change</span><output id="yearOut">30 yr</output>
+        </div>
+        <input id="year" type="range" min="0" max="150" step="1" value="30">
+      </div>
+
+      <div class="buttons">
+        <button id="baseline">Baseline</button>
+        <button id="double" class="primary">Double CO₂</button>
+        <button id="ice">Less ice</button>
+        <button id="slow">Slow ocean</button>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>2. Watch the model respond</h2>
+        <svg viewBox="0 0 720 270" role="img" aria-label="Conceptual Earth energy balance diagram">
+          <circle cx="80" cy="125" r="45" fill="#f3c746"></circle>
+          <text x="80" y="132" text-anchor="middle" font-size="18" font-weight="700" fill="#543f00">SUN</text>
+
+          <circle cx="355" cy="130" r="70" fill="#7fb2cf"></circle>
+          <path d="M300 122 C325 105 345 108 370 118 C395 128 410 142 420 160 C395 170 370 177 345 175 C320 170 307 150 300 122Z" fill="#6d9f65"></path>
+          <text x="355" y="137" text-anchor="middle" font-size="20" font-weight="700" fill="#17314e">EARTH</text>
+
+          <line x1="130" y1="105" x2="270" y2="105" stroke="#d49d00" stroke-width="8"></line>
+          <polygon points="270,105 250,94 250,116" fill="#d49d00"></polygon>
+          <text x="200" y="88" text-anchor="middle" font-size="14">sunlight</text>
+
+          <line x1="300" y1="76" x2="190" y2="40" stroke="#8aa0b2" stroke-width="5"></line>
+          <polygon points="190,40 208,37 202,53" fill="#8aa0b2"></polygon>
+          <text id="reflectLabel" x="250" y="42" text-anchor="middle" font-size="13">30.0% reflected</text>
+
+          <line id="heatArrow" x1="425" y1="120" x2="585" y2="120" stroke="#b85d45" stroke-width="7"></line>
+          <polygon points="585,120 565,109 565,131" fill="#b85d45"></polygon>
+          <text x="505" y="100" text-anchor="middle" font-size="14">outgoing heat</text>
+
+          <path d="M300 205 C340 225 390 225 430 205" fill="none" stroke="#7c6cae" stroke-width="5" stroke-dasharray="8 6"></path>
+          <text id="co2Label" x="365" y="245" text-anchor="middle" font-size="14">CO₂ = 280 ppm</text>
+
+          <rect x="610" y="60" width="72" height="145" rx="12" fill="none" stroke="#16324f" opacity="0.5"></rect>
+          <rect id="tempFill" x="620" y="190" width="52" height="5" rx="6" fill="#b85d45"></rect>
+          <text id="tempText" x="646" y="48" text-anchor="middle" font-size="15" font-weight="700">0.0°C</text>
+        </svg>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><div class="label">CO₂ forcing</div><div id="fco2" class="value">0.00 W/m²</div></div>
+        <div class="metric"><div class="label">Albedo forcing</div><div id="falb" class="value">0.00 W/m²</div></div>
+        <div class="metric"><div class="label">Current warming</div><div id="temp" class="value">0.00 °C</div></div>
+        <div class="metric"><div class="label">Final equilibrium</div><div id="teq" class="value">0.00 °C</div></div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+          <h3>What is happening?</h3>
+          <span id="status" class="status">Balanced</span>
+        </div>
+        <p id="explain" style="margin:8px 0 0">At the baseline, forcing is near zero.</p>
+        <div class="triplet">
+          <div><b>Net forcing F</b><br><span id="fnet">0.00 W/m²</span></div>
+          <div><b>Energy imbalance N</b><br><span id="imbalance">0.00 W/m²</span></div>
+          <div><b>Response time τ=C/λ</b><br><span id="tau">8.3 yr</span></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:18px">
+    <h2>3. Guided student challenges</h2>
+    <div class="challenge-grid">
+      <div class="challenge">
+        <h3>A — Double CO₂</h3>
+        <p class="small">Set CO₂ = 560 ppm, α = 0.30, λ = 1.2, C = 10.</p>
+        <p><b>Question:</b> What is the final equilibrium warming? Does the temperature reach it immediately?</p>
+      </div>
+      <div class="challenge">
+        <h3>B — Ice loss</h3>
+        <p class="small">Return CO₂ to 280 ppm and lower albedo from 0.30 to 0.29.</p>
+        <p><b>Question:</b> Why does lower albedo create positive forcing?</p>
+      </div>
+      <div class="challenge">
+        <h3>C — Ocean inertia</h3>
+        <p class="small">Use the same forcing and compare C = 5 with C = 30.</p>
+        <p><b>Question:</b> Which warms faster? Does C change the final equilibrium?</p>
+      </div>
+      <div class="challenge">
+        <h3>D — Climate sensitivity</h3>
+        <p class="small">Keep forcing fixed and compare λ = 0.8 with λ = 1.8.</p>
+        <p><b>Question:</b> Which model is more sensitive, and why?</p>
+      </div>
+    </div>
+
+    <div class="notice">
+      <b>Model limitation:</b> This model represents global-mean energy balance only.
+      It cannot simulate monsoon rainfall, wind circulation, regional climate, clouds explicitly, or individual weather events.
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:18px">
+    <h2>4. Experiment recorder</h2>
+    <p class="small">Click “Save current experiment” after each test. You can export the table as CSV.</p>
+    <div class="buttons">
+      <button id="saveExperiment" class="primary">Save current experiment</button>
+      <button id="clearExperiments">Clear table</button>
+      <button id="exportCsv">Export CSV</button>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="results">
+        <thead>
+          <tr>
+            <th>#</th><th>CO₂</th><th>α</th><th>λ</th><th>C</th><th>Year</th>
+            <th>Net forcing</th><th>Current T</th><th>Equilibrium T</th><th>N</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer>
+  NUTECH · Advanced Computational Models for Climate Change · Teaching model for experiential learning
+</footer>
+
+<script>
+(() => {
+  const q = id => document.getElementById(id);
+  const els = {
+    co2:q('co2'), albedo:q('albedo'), lambda:q('lambda'), capacity:q('capacity'), year:q('year'),
+    co2Out:q('co2Out'), albOut:q('albOut'), lamOut:q('lamOut'), cOut:q('cOut'), yearOut:q('yearOut'),
+    fco2:q('fco2'), falb:q('falb'), temp:q('temp'), teq:q('teq'),
+    fnet:q('fnet'), imbalance:q('imbalance'), tau:q('tau'),
+    status:q('status'), explain:q('explain'), tempFill:q('tempFill'), tempText:q('tempText'),
+    reflectLabel:q('reflectLabel'), co2Label:q('co2Label'), heatArrow:q('heatArrow'),
+    resultsBody:q('resultsBody')
+  };
+
+  const S0 = 1361;
+  const alpha0 = 0.30;
+  const co20 = 280;
+  const experiments = [];
+
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+
+  function currentState(){
+    const co2 = +els.co2.value;
+    const a = +els.albedo.value;
+    const lam = +els.lambda.value;
+    const C = +els.capacity.value;
+    const yr = +els.year.value;
+
+    const Fco2 = 5.35 * Math.log(co2/co20);
+    const Falb = -(S0/4) * (a-alpha0);
+    const F = Fco2 + Falb;
+    const tau = C/lam;
+    const Teq = F/lam;
+    const T = Teq * (1 - Math.exp(-yr/tau));
+    const N = F - lam*T;
+
+    return {co2,a,lam,C,yr,Fco2,Falb,F,tau,Teq,T,N};
+  }
+
+  function render(){
+    const s = currentState();
+
+    els.co2Out.value = `${s.co2.toFixed(0)} ppm`;
+    els.albOut.value = s.a.toFixed(3);
+    els.lamOut.value = `${s.lam.toFixed(1)} W/m²/K`;
+    els.cOut.value = s.C.toFixed(0);
+    els.yearOut.value = `${s.yr.toFixed(0)} yr`;
+
+    els.fco2.textContent = `${s.Fco2>=0?'+':''}${s.Fco2.toFixed(2)} W/m²`;
+    els.falb.textContent = `${s.Falb>=0?'+':''}${s.Falb.toFixed(2)} W/m²`;
+    els.temp.textContent = `${s.T>=0?'+':''}${s.T.toFixed(2)} °C`;
+    els.teq.textContent = `${s.Teq>=0?'+':''}${s.Teq.toFixed(2)} °C`;
+    els.fnet.textContent = `${s.F>=0?'+':''}${s.F.toFixed(2)} W/m²`;
+    els.imbalance.textContent = `${s.N>=0?'+':''}${s.N.toFixed(2)} W/m²`;
+    els.tau.textContent = `${s.tau.toFixed(1)} yr`;
+
+    els.reflectLabel.textContent = `${(s.a*100).toFixed(1)}% reflected`;
+    els.co2Label.textContent = `CO₂ = ${s.co2.toFixed(0)} ppm`;
+    els.tempText.textContent = `${s.T>=0?'+':''}${s.T.toFixed(1)}°C`;
+
+    const h = clamp(Math.abs(s.T)*22,5,125);
+    const y = 195-h;
+    els.tempFill.setAttribute('y',y);
+    els.tempFill.setAttribute('height',h);
+    els.tempFill.setAttribute('fill',s.T>=0?'#b85d45':'#4f7fae');
+    els.heatArrow.setAttribute('stroke-width', String(clamp(4+Math.abs(s.lam*s.T)*1.1,4,13)));
+
+    let status='Near equilibrium';
+    let explanation='The net energy imbalance is small, so temperature is changing only slowly.';
+    if (s.N>0.3){
+      status='Still warming';
+      explanation='Positive energy imbalance means the climate system is still gaining energy. As temperature rises, the stabilizing response λT grows and the imbalance becomes smaller.';
+    } else if (s.N<-0.3){
+      status='Cooling';
+      explanation='Negative energy imbalance means the system is losing more energy than the imposed forcing supplies, so temperature moves downward toward equilibrium.';
+    }
+    if (Math.abs(s.F)<0.05){
+      status='Baseline balance';
+      explanation='At the baseline, added forcing is near zero, so the temperature anomaly remains close to zero.';
+    }
+    els.status.textContent=status;
+    els.explain.textContent=explanation;
+  }
+
+  ['co2','albedo','lambda','capacity','year'].forEach(id => q(id).addEventListener('input',render));
+
+  q('baseline').addEventListener('click',()=>{
+    els.co2.value=280; els.albedo.value=.30; els.lambda.value=1.2; els.capacity.value=10; els.year.value=30; render();
+  });
+  q('double').addEventListener('click',()=>{
+    els.co2.value=560; els.albedo.value=.30; els.lambda.value=1.2; els.capacity.value=10; els.year.value=30; render();
+  });
+  q('ice').addEventListener('click',()=>{
+    els.co2.value=280; els.albedo.value=.29; els.lambda.value=1.2; els.capacity.value=10; els.year.value=30; render();
+  });
+  q('slow').addEventListener('click',()=>{
+    els.co2.value=560; els.albedo.value=.30; els.lambda.value=1.2; els.capacity.value=30; els.year.value=30; render();
+  });
+
+  function redrawTable(){
+    els.resultsBody.innerHTML = experiments.map((s,i)=>`
+      <tr>
+        <td>${i+1}</td>
+        <td>${s.co2.toFixed(0)}</td>
+        <td>${s.a.toFixed(3)}</td>
+        <td>${s.lam.toFixed(1)}</td>
+        <td>${s.C.toFixed(0)}</td>
+        <td>${s.yr.toFixed(0)}</td>
+        <td>${s.F.toFixed(2)}</td>
+        <td>${s.T.toFixed(2)}</td>
+        <td>${s.Teq.toFixed(2)}</td>
+        <td>${s.N.toFixed(2)}</td>
+      </tr>`).join('');
+  }
+
+  q('saveExperiment').addEventListener('click',()=>{
+    experiments.push(currentState());
+    redrawTable();
+  });
+
+  q('clearExperiments').addEventListener('click',()=>{
+    experiments.length=0;
+    redrawTable();
+  });
+
+  q('exportCsv').addEventListener('click',()=>{
+    if (!experiments.length){
+      alert('Save at least one experiment first.');
+      return;
+    }
+    const header=['Experiment','CO2_ppm','Albedo','Lambda','HeatCapacity','Year','NetForcing_Wm2','CurrentTemp_C','EquilibriumTemp_C','EnergyImbalance_Wm2'];
+    const rows=experiments.map((s,i)=>[
+      i+1,s.co2,s.a,s.lam,s.C,s.yr,s.F.toFixed(4),s.T.toFixed(4),s.Teq.toFixed(4),s.N.toFixed(4)
+    ]);
+    const csv=[header,...rows].map(r=>r.join(',')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='NUTECH_Mini_Climate_Box_Experiments.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
